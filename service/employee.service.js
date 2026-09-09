@@ -119,7 +119,8 @@ const createEmployee = async (employee) => {
         salary,
         department_id,
         date_of_joining,
-        is_active
+        is_active,
+        profile_photo
     } = employee;
 
     const sql = `
@@ -131,9 +132,10 @@ const createEmployee = async (employee) => {
             salary,
             department_id,
             date_of_joining,
-            is_active
+            is_active,
+            profile_photo
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const [result] = await db.query(sql, [
@@ -143,7 +145,8 @@ const createEmployee = async (employee) => {
         salary,
         department_id,
         date_of_joining,
-        is_active
+        is_active,
+        profile_photo || null
     ]);
 
     return {
@@ -154,7 +157,8 @@ const createEmployee = async (employee) => {
         salary,
         department_id,
         date_of_joining,
-        is_active
+        is_active,
+        profile_photo: profile_photo || null
     };
 };
 

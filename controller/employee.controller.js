@@ -123,6 +123,10 @@ const createEmployee = async (req, res) => {
             is_active
         } = req.body;
 
+        const profile_photo = req.file
+            ? `uploads/${req.file.filename}`
+            : null;
+
         // Required field validation
         if (
             !first_name ||
@@ -147,7 +151,7 @@ const createEmployee = async (req, res) => {
             });
         }
 
-        const employee = await employeeService.createEmployee(req.body);
+        const employee = await employeeService.createEmployee({...req.body, profile_photo});
 
         res.status(201).json({
             success: true,

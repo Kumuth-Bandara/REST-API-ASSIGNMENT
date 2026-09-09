@@ -1,3 +1,5 @@
+const upload = require('../middleware/upload.middleware');
+
 const express = require('express');
 
 const employeeController = require('../controller/employee.controller');
@@ -8,7 +10,7 @@ router.get('/employees', employeeController.getEmployees);
 
 router.get('/employees/:id', employeeController.getEmployeeById);
 
-router.post('/employees', employeeController.createEmployee);
+router.post('/employees', upload.single('profile_photo'), employeeController.createEmployee);
 
 router.put('/employees/:id', employeeController.updateEmployee);
 
