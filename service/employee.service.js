@@ -31,13 +31,11 @@ const getAllEmployees = async (filters) => {
 
     const params = [];
 
-    // Department filter
     if (department) {
         sql += ` AND d.name LIKE ?`;
         params.push(`%${department}%`);
     }
 
-    // Search filter
     if (search) {
         sql += `
             AND (
@@ -54,7 +52,6 @@ const getAllEmployees = async (filters) => {
         params.push(searchValue);
     }
 
-    // Sorting
     const allowedSortFields = {
         id: 'e.id',
         first_name: 'e.first_name',
@@ -65,13 +62,13 @@ const getAllEmployees = async (filters) => {
     };
 
     const sortField = allowedSortFields[sort] || 'e.id';
+
     const sortOrder = order && order.toUpperCase() === 'DESC'
         ? 'DESC'
         : 'ASC';
 
     sql += ` ORDER BY ${sortField} ${sortOrder}`;
 
-    // Pagination
     const pageNumber = Number(page) || 1;
     const limitNumber = Number(limit) || 10;
     const offset = (pageNumber - 1) * limitNumber;
@@ -86,6 +83,160 @@ const getAllEmployees = async (filters) => {
     return rows;
 };
 
+
+// Get one employee by ID
+const getEmployeeById = async (id) => {
+    const sql = `
+        SELECT 
+            e.id,
+            e.first_name,
+            e.last_name,
+            e.email,
+            e.salary,
+            e.department_id,
+            d.name AS department,
+            e.date_of_joining,
+            e.is_active,
+            e.profile_photo,
+            e.created_at
+        FROM employees e
+        LEFT JOIN departments d
+            ON e.department_id = d.id
+        WHERE e.id = ?
+    `;
+
+    const [rows] = await db.query(sql, [id]);
+
+    return rows[0];
+};
+
+
+const createEmployee = async (employee) => {
+    const {
+        first_name,
+        last_name,
+        email,
+        salary,
+        department_id,
+        date_of_joining,
+        is_active
+    } = employee;
+
+    const sql = `
+        INSERT INTO employees
+        (
+            first_name,
+            last_name,
+            email,
+            salary,
+            department_id,
+            date_of_joining,
+            is_active
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const [result] = await db.query(sql, [
+        first_name,
+        last_name,
+        email,
+        salary,
+        department_id,
+        date_of_joining,
+        is_active
+    ]);
+
+    return {
+        id: result.insertId,
+        first_name,
+        last_name,
+        email,
+        salary,
+        department_id,
+        date_of_joining,
+        is_active
+    };
+};
+
+const updateEmployee = async (id, employee) => {
+    const {
+        first_name,
+        last_name,
+        email,
+        salary,
+        department_id,
+        date_of_joining,
+        is_active
+    } = employee;
+
+    const sql = `
+        UPDATE employees
+        SET
+            first_name = ?,
+            last_name = ?,
+            email = ?,
+            salary = ?,
+            department_id = ?,
+            date_of_joining = ?,
+            is_active = ?
+        WHERE id = ?
+    `;
+
+    const [result] = await db.query(sql, [
+        first_name,
+        last_name,
+        email,
+        salary,
+        department_id,
+        date_of_joining,
+        is_active,
+        id
+    ]);
+
+    return result;
+};
+
+const updateEmployeeSalary = async (id, salary) => {
+    const sql = `
+        UPDATE employees
+        SET salary = ?
+        WHERE id = ?
+    `;
+
+    const [result] = await db.query(sql, [salary, id]);
+
+    return result;
+};
+
+const updateEmployeeStatus = async (id, is_active) => {
+    const sql = `
+        UPDATE employees
+        SET is_active = ?
+        WHERE id = ?
+    `;
+
+    const [result] = await db.query(sql, [is_active, id]);
+
+    return result;
+};
+
+const deleteEmployee = async (id) => {
+    const sql = `
+        DELETE FROM employees
+        WHERE id = ?
+    `;
+
+    const [result] = await db.query(sql, [id]);
+
+    return result;
+};
+
 module.exports = {
-    getAllEmployees
+    getAllEmployees,
+    getEmployeeById,
+    createEmployee,
+    updateEmployee,
+    updateEmployeeSalary,
+    updateEmployeeStatus,
+    deleteEmployee
 };
