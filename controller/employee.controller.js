@@ -2,6 +2,63 @@ const employeeService = require('../service/employee.service');
 
 const getEmployees = async (req, res) => {
     try {
+        const {
+            department,
+            search,
+            page,
+            limit,
+            sort,
+            order
+        } = req.query;
+
+        // Validate page
+        if (page !== undefined) {
+            if (!Number.isInteger(Number(page)) || Number(page) < 1) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Page must be a positive integer'
+                });
+            }
+        }
+
+        // Validate limit
+        if (limit !== undefined) {
+            if (!Number.isInteger(Number(limit)) || Number(limit) < 1) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Limit must be a positive integer'
+                });
+            }
+        }
+
+        // Validate order
+        if (order !== undefined) {
+            if (!['asc', 'desc'].includes(order.toLowerCase())) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Order must be either ascending or descending'
+                });
+            }
+        }
+
+        // Validate sort field
+        const allowedSortFields = [
+            'id',
+            'name',
+            'first_name',
+            'last_name',
+            'salary',
+            'date_of_joining',
+            'created_at'
+        ];
+
+        if (sort !== undefined && !allowedSortFields.includes(sort)) {
+            return res.status(400).json({
+                success: false,
+                message: `Invalid sort field. Allowed fields: ${allowedSortFields.join(', ')}`
+            });
+        }
+
         const employees = await employeeService.getAllEmployees(req.query);
 
         res.status(200).json({
@@ -22,7 +79,6 @@ const getEmployees = async (req, res) => {
 };
 
 
-// Get one employee
 const getEmployeeById = async (req, res) => {
     try {
         const { id } = req.params;
