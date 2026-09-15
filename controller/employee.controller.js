@@ -364,6 +364,57 @@ const updateEmployeeStatus = async (req, res) => {
     }
 };
 
+const uploadEmployeePhoto = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Check employee exists
+        const existingEmployee = await employeeService.getEmployeeById(id);
+
+        if (!existingEmployee) {
+            return res.status(404).json({
+                success: false,
+                message: 'Employee not found'
+            });
+        }
+
+        // Check photo was uploaded
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: 'Photo file is required'
+            });
+        }
+
+        const profile_photo = `uploads/${req.file.filename}`;
+
+        await employeeService.updateEmployeePhoto(
+            id,
+            profile_photo
+        );
+
+        const updatedEmployee =
+            await employeeService.getEmployeeById(id);
+
+        res.status(200).json({
+            success: true,
+            message: 'Employee profile photo updated successfully',
+            data: {
+                employee: updatedEmployee
+            }
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: 'Failed to upload employee photo',
+            error: error.message
+        });
+    }
+};
+
 const deleteEmployee = async (req, res) => {
     try {
         const { id } = req.params;
@@ -405,5 +456,6 @@ module.exports = {
     updateEmployee,
     updateEmployeeSalary,
     updateEmployeeStatus,
-    deleteEmployee
+    deleteEmployee,
+    uploadEmployeePhoto
 };

@@ -54,6 +54,7 @@ const getAllEmployees = async (filters) => {
 
     const allowedSortFields = {
         id: 'e.id',
+        name: 'd.name',
         first_name: 'e.first_name',
         last_name: 'e.last_name',
         salary: 'e.salary',
@@ -224,6 +225,18 @@ const updateEmployeeStatus = async (id, is_active) => {
     return result;
 };
 
+const updateEmployeePhoto = async (id, profile_photo) => {
+    const sql = `
+        UPDATE employees
+        SET profile_photo = ?
+        WHERE id = ?
+    `;
+
+    const [result] = await db.query(sql, [profile_photo, id]);
+
+    return result;
+};
+
 const deleteEmployee = async (id) => {
     const sql = `
         DELETE FROM employees
@@ -242,5 +255,6 @@ module.exports = {
     updateEmployee,
     updateEmployeeSalary,
     updateEmployeeStatus,
-    deleteEmployee
+    deleteEmployee,
+    updateEmployeePhoto
 };
