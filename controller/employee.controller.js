@@ -4,12 +4,23 @@ const getEmployees = async (req, res) => {
     try {
         const {
             department,
+            status,
             search,
             page,
             limit,
             sort,
             order
         } = req.query;
+
+        // Validate status
+        if (status !== undefined) {
+            if (!['active', 'inactive'].includes(status.toLowerCase())) {
+                return res.status(400).json({
+                success: false,
+                message: 'Status must be either active or inactive'
+                });
+            }
+        }
 
         // Validate page
         if (page !== undefined) {

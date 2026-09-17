@@ -3,6 +3,7 @@ const db = require('../config/database');
 const getAllEmployees = async (filters) => {
     const {
         department,
+        status,
         search,
         page,
         limit,
@@ -32,8 +33,16 @@ const getAllEmployees = async (filters) => {
     const params = [];
 
     if (department) {
-        sql += ` AND d.name LIKE ?`;
-        params.push(`%${department}%`);
+        sql += ` AND d.name = ?`;
+        params.push(department);
+    }
+
+    if (status) {
+        sql += ` AND e.is_active = ?`;
+
+        params.push(
+            status.toLowerCase() === 'active' ? 1 : 0
+        );
     }
 
     if (search) {

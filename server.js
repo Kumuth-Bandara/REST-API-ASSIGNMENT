@@ -5,10 +5,27 @@ require('dotenv').config();
 
 const db = require('./config/database');
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
+
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+app.use(
+    '/api-docs',
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec, {
+        swaggerOptions: {
+            persistAuthorization: true
+        }
+    })
+);
+
+app.get('/api-docs.json', (req, res) => {
+    res.json(swaggerSpec);
+});
 
 app.use('/api', employeeRoutes);
 
